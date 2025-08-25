@@ -1,0 +1,83 @@
+Removed Pin From Net: NetName=3V3 Pin=R166-1
+Removed Pin From Net: NetName=SOC_EMU0 Pin=R166-2
+Removed Pin From Net: NetName=3V3 Pin=R167-1
+Removed Pin From Net: NetName=SOC_EMU1 Pin=R167-2
+Removed Pin From Net: NetName=SOC_TRSTN Pin=R168-1
+Removed Pin From Net: NetName=GND Pin=R168-2
+Removed Member From Class: ClassName=DDR3L Chip Member=R52
+Removed Member From Class: ClassName=DDR3L Chip Member=R61
+Removed Member From Class: ClassName=Designator Member=R90
+Removed Member From Class: ClassName=Micro SD Card Member=R90
+Removed Member From Class: ClassName=Designator Member=R115
+Removed Member From Class: ClassName=Micro SD Card Member=R115
+Removed Member From Class: ClassName=SoC MMC Member=R154
+Change Component Footprint: Designator=R166 Old Footprint=R_0603 New Footprint=R_0402
+Change Component Footprint: Designator=R167 Old Footprint=R_0603 New Footprint=R_0402
+Change Component Footprint: Designator=R168 Old Footprint=R_0603 New Footprint=R_0402
+Added Pin To Net: NetName=SOC_EMU0 Pin=R166-1
+Added Pin To Net: NetName=3V3 Pin=R166-2
+Added Pin To Net: NetName=SOC_EMU1 Pin=R167-1
+Added Pin To Net: NetName=3V3 Pin=R167-2
+Added Pin To Net: NetName=GND Pin=R168-1
+Added Pin To Net: NetName=SOC_TRSTN Pin=R168-2
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Add Class: Class already exists: Designator
+Added Member To Class: ClassName=DDR3L Chip Member=Component R49 240R
+Added Member To Class: ClassName=DDR3L Chip Member=Component R50 10K
+Added Member To Class: ClassName=DDR3L Chip Member=Component R51 10K
+Added Member To Class: ClassName=Designator Member=Component R63 49R9
+Added Member To Class: ClassName=Designator Member=Component R64 49R9
+Added Member To Class: ClassName=Designator Member=Component R65 49R9
+Added Member To Class: ClassName=Designator Member=Component R66 49R9
+Added Member To Class: ClassName=Designator Member=Component R67 0R
+Added Member To Class: ClassName=Designator Member=Component R68 470R
+Added Member To Class: ClassName=Designator Member=Component R69 470R
+Added Member To Class: ClassName=Designator Member=Component R70 10K
+Added Member To Class: ClassName=Designator Member=Component R71 NC
+Added Member To Class: ClassName=Designator Member=Component R72 NC
+Added Member To Class: ClassName=Designator Member=Component R73 1K5
+Added Member To Class: ClassName=Designator Member=Component R74 1K5
+Added Member To Class: ClassName=Designator Member=Component R75 1K5
+Added Member To Class: ClassName=Designator Member=Component R76 10K
+Added Member To Class: ClassName=Designator Member=Component R77 10K
+Added Member To Class: ClassName=Designator Member=Component R78 10K
+Added Member To Class: ClassName=Designator Member=Component R79 10K
+Added Member To Class: ClassName=Designator Member=Component R80 12K1
+Added Member To Class: ClassName=Designator Member=Component R81 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R82 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R83 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R84 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R85 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R86 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R87 10K
+Added Member To Class: ClassName=Micro SD Card Member=Component R88 10K
+Added Member To Class: ClassName=SoC MMC Member=Component R122 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R123 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R125 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R126 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R128 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R129 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R130 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R131 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R132 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R133 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R134 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R135 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R136 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R137 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R138 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R139 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R141 33R
+Added Member To Class: ClassName=SoC MMC Member=Component R142 33R
