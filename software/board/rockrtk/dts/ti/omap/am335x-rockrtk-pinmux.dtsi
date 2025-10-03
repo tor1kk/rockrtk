@@ -123,9 +123,16 @@
     /* GPIO WL_REG_ON (reset) */
     ap6256_pwr_pins: ap6256-pwr-pins {
         pinctrl-single,pins = <
-            AM33XX_PADCONF(0x82c, PIN_OUTPUT, MUX_MODE7) /* gpmc_ad11 -> gpio0[27] */
+            AM33XX_PADCONF(0x82c, PIN_OUTPUT_PULLUP, MUX_MODE7) /* gpmc_ad11 -> gpio0[27] */
         >;
     };
+
+	/* GPIO WL_HOST_WAKE (interrupt to host) */
+	ap6256_host_wake: ap6256-host-wake {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(0x828, PIN_INPUT, MUX_MODE7) /* gpmc_ad10 -> gpio0[26] */
+		>;
+	};
 
 	/* GPIO LTE_POWER (power on/off) */
 	lte_power_pins: lte_power_pins {

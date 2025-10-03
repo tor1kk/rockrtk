@@ -1,7 +1,10 @@
 /dts-v1/;
 
+#include <dt-bindings/interrupt-controller/irq.h>
+
 #include "am33xx.dtsi"
 #include "am335x-rockrtk-pinmux.dtsi"
+
 
 / {
 	model = "AM335x RockRTK Board";
@@ -54,8 +57,9 @@
 	wifi_pwrseq: wifi_pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		reset-gpios = <&gpio0 27 GPIO_ACTIVE_LOW>;
- 		clocks = <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
-		clock-names = "ext_clock";
+		// post-power-on-delay-ms = <200>; 
+ 		// clocks = <&clk_24mhz_clkctrl AM3_CLK_24MHZ_CLKDIV32K_CLKCTRL 0>;
+		// clock-names = "ext_clock";
 	};
 };
 
@@ -165,36 +169,41 @@
 };
 
 &mmc3 {
-    status = "okay";
-    vmmc-supply = <&vmmcsd_fixed>;   
-    pinctrl-names = "default";
-    pinctrl-0 = <&ap6256_mmc3_pins>;
-    bus-width = <4>;
-
 	dmas = <&edma_xbar 12 0 1
 			&edma_xbar 13 0 2>;
 	dma-names = "tx", "rx";
- 
-    mmc-pwrseq = <&wifi_pwrseq>;
-    max-frequency = <50000000>;
+
+    status = "okay";
+    vmmc-supply = <&vmmcsd_fixed>;   
+    pinctrl-names = "default";
+    pinctrl-0 = <&ap6256_mmc3_pins &ap6256_pwr_pins &ap6256_host_wake>;
+
+ 	cap-power-off-card;
+	keep-power-in-suspend;
+	bus-width = <4>;
+	ti,non-removable;
+	non-removable;
+	no-1-8-v;
+	max-frequency = <50000000>;
 
 	#address-cells = <1>;
 	#size-cells = <0>;
-	no-1-8-v;
-	ti,non-removable;
-	ti,needs-special-hs-handling;
-	cap-power-off-card;
-	keep-power-in-suspend;
+	mmc-pwrseq = <&wifi_pwrseq>;
+
+	brcmf: wifi@1 {
+		status = "okay";
+		reg = <1>;
+		compatible = "brcm,bcm43456-fmac";
+
+  		brcm,sd_head_align = <4>;
+		brcm,sd_sgentry_align = <512>;
+
+        interrupt-parent = <&gpio0>;
+        interrupts = <26 IRQ_TYPE_LEVEL_HIGH>;  /* WL_HOST_WAKE */
+		interrupt-names = "host-wake";
+	};
 };
 
-// &gpio0 {
-//     wl_reg_on_hog: wl_reg_on_hog {
-//         gpio-hog;
-//         gpios = <27 GPIO_ACTIVE_HIGH>;
-//         output-high;
-//         line-name = "wl_reg_on_force";
-//     };
-// };
 
 &aes {
 	status = "okay";

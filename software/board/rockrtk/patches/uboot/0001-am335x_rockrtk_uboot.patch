@@ -1,42 +1,42 @@
-From a0876cf5a6642489023d97acc9702eea9d500b52 Mon Sep 17 00:00:00 2001
+From 5ae08927ac224e6408ec5397032d84f9c470f238 Mon Sep 17 00:00:00 2001
 From: tor1kk <Vsobeskiy@gmail.com>
-Date: Sat, 16 Aug 2025 20:23:05 +0300
-Subject: [PATCH] RockRTK board porting
+Date: Sun, 28 Sep 2025 10:31:57 +0300
+Subject: [PATCH] RockRTK board integration
 
 ---
- arch/arm/dts/Makefile                |   1 +
- arch/arm/dts/am335x-rockrtk.dts      |  47 +++
- arch/arm/mach-omap2/Kconfig          |   1 +
- arch/arm/mach-omap2/am33xx/Kconfig   |  30 ++
- board/tor1kk/am335x_rockrtk/Kconfig  |  24 ++
- board/tor1kk/am335x_rockrtk/Makefile |  11 +
- board/tor1kk/am335x_rockrtk/board.c  | 563 +++++++++++++++++++++++++++
- board/tor1kk/am335x_rockrtk/board.h  |  41 ++
- board/tor1kk/am335x_rockrtk/mux.c    | 361 +++++++++++++++++
- configs/am335x_rockrtk_defconfig     |  95 +++++
- include/configs/am335x_rockrtk.h     | 293 ++++++++++++++
- 11 files changed, 1467 insertions(+)
+ arch/arm/dts/Makefile              |   1 +
+ arch/arm/dts/am335x-rockrtk.dts    |  47 +++
+ arch/arm/mach-omap2/Kconfig        |   1 +
+ arch/arm/mach-omap2/am33xx/Kconfig |  30 ++
+ board/ti/am335x_rockrtk/Kconfig    |  24 ++
+ board/ti/am335x_rockrtk/Makefile   |  10 +
+ board/ti/am335x_rockrtk/board.c    | 606 +++++++++++++++++++++++++++++
+ board/ti/am335x_rockrtk/board.h    |  28 ++
+ board/ti/am335x_rockrtk/mux.c      | 338 ++++++++++++++++
+ configs/am335x_rockrtk_defconfig   | 130 +++++++
+ include/configs/am335x_rockrtk.h   | 173 ++++++++
+ 11 files changed, 1388 insertions(+)
  create mode 100644 arch/arm/dts/am335x-rockrtk.dts
- create mode 100644 board/tor1kk/am335x_rockrtk/Kconfig
- create mode 100644 board/tor1kk/am335x_rockrtk/Makefile
- create mode 100644 board/tor1kk/am335x_rockrtk/board.c
- create mode 100644 board/tor1kk/am335x_rockrtk/board.h
- create mode 100644 board/tor1kk/am335x_rockrtk/mux.c
+ create mode 100644 board/ti/am335x_rockrtk/Kconfig
+ create mode 100644 board/ti/am335x_rockrtk/Makefile
+ create mode 100644 board/ti/am335x_rockrtk/board.c
+ create mode 100644 board/ti/am335x_rockrtk/board.h
+ create mode 100644 board/ti/am335x_rockrtk/mux.c
  create mode 100644 configs/am335x_rockrtk_defconfig
  create mode 100644 include/configs/am335x_rockrtk.h
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index fd47e408f82..6f4a0513496 100644
+index 976dbda48c3..1c893919d47 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -343,6 +343,7 @@ dtb-$(CONFIG_AM33XX) += \
+@@ -426,6 +426,7 @@ dtb-$(CONFIG_AM33XX) += \
  	am335x-pocketbeagle.dtb \
  	am335x-pxm50.dtb \
  	am335x-rut.dtb \
 +	am335x-rockrtk.dtb \
- 	am335x-shc.dtb \
- 	am335x-pdu001.dtb \
- 	am335x-chiliboard.dtb \
+ 	am335x-sancloud-bbe.dtb \
+ 	am335x-sancloud-bbe-lite.dtb \
+ 	am335x-sancloud-bbe-extended-wifi.dtb \
 diff --git a/arch/arm/dts/am335x-rockrtk.dts b/arch/arm/dts/am335x-rockrtk.dts
 new file mode 100644
 index 00000000000..cbfd634a9af
@@ -91,22 +91,22 @@ index 00000000000..cbfd634a9af
 +	system-power-controller;
 +};
 diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
-index 48bc80a6390..0f54f147f81 100644
+index c07dd68e6ce..8cdb7fc4c2f 100644
 --- a/arch/arm/mach-omap2/Kconfig
 +++ b/arch/arm/mach-omap2/Kconfig
-@@ -184,6 +184,7 @@ source "board/siemens/rut/Kconfig"
- source "board/ti/ti816x/Kconfig"
+@@ -170,6 +170,7 @@ source "board/siemens/pxm2/Kconfig"
+ source "board/siemens/rut/Kconfig"
  source "board/ti/am43xx/Kconfig"
  source "board/ti/am335x/Kconfig"
-+source "board/tor1kk/am335x_rockrtk/Kconfig"
- source "board/compulab/cm_t335/Kconfig"
++source "board/ti/am335x_rockrtk/Kconfig"
  source "board/compulab/cm_t43/Kconfig"
  source "board/phytec/phycore_am335x_r2/Kconfig"
+ 
 diff --git a/arch/arm/mach-omap2/am33xx/Kconfig b/arch/arm/mach-omap2/am33xx/Kconfig
-index 9a98e8a0a9b..ee2e888ca10 100644
+index 46abf070f9d..dcf96b615bf 100644
 --- a/arch/arm/mach-omap2/am33xx/Kconfig
 +++ b/arch/arm/mach-omap2/am33xx/Kconfig
-@@ -62,6 +62,36 @@ config TARGET_AM335X_EVM
+@@ -43,6 +43,36 @@ config TARGET_AM335X_EVM
  	  to write software and develop hardware around
  	  an AM335x processor subsystem.
  
@@ -116,25 +116,25 @@ index 9a98e8a0a9b..ee2e888ca10 100644
 +	select DM
 +	select DM_GPIO
 +	select DM_SERIAL
-+ 	imply CMD_DM
++ 	select SUPPORT_EXTENSION_SCAN
++	imply CMD_DM
 +	imply SPL_DM
 +	imply SPL_DM_SEQ_ALIAS
 +	imply SPL_ENV_SUPPORT
 +	imply SPL_FS_EXT4
 +	imply SPL_FS_FAT
-+	imply SPL_GPIO_SUPPORT
-+	imply SPL_I2C_SUPPORT
++	imply SPL_GPIO
++	imply SPL_I2C
 +	imply SPL_LIBCOMMON_SUPPORT
 +	imply SPL_LIBDISK_SUPPORT
 +	imply SPL_LIBGENERIC_SUPPORT
-+	imply SPL_MMC_SUPPORT
-+	imply SPL_NAND_SUPPORT
-+	imply SPL_OF_LIBFDT
-+	imply SPL_POWER_SUPPORT
++	imply SPL_MMC
++ 	imply SPL_OF_LIBFDT
++	imply SPL_POWER
 +	imply SPL_SEPARATE_BSS
-+	imply SPL_SERIAL_SUPPORT
++	imply SPL_SERIAL
 +	imply SPL_SYS_MALLOC_SIMPLE
-+	imply SPL_WATCHDOG_SUPPORT
++	imply SPL_WATCHDOG
 +	imply SPL_YMODEM_SUPPORT
 +	help
 +	  This option specifies support for the AM335x
@@ -143,11 +143,11 @@ index 9a98e8a0a9b..ee2e888ca10 100644
  config TARGET_AM335X_BALTOS
  	bool "Support am335x_baltos"
  	select BOARD_LATE_INIT
-diff --git a/board/tor1kk/am335x_rockrtk/Kconfig b/board/tor1kk/am335x_rockrtk/Kconfig
+diff --git a/board/ti/am335x_rockrtk/Kconfig b/board/ti/am335x_rockrtk/Kconfig
 new file mode 100644
-index 00000000000..c632ac852fc
+index 00000000000..6c45035eafd
 --- /dev/null
-+++ b/board/tor1kk/am335x_rockrtk/Kconfig
++++ b/board/ti/am335x_rockrtk/Kconfig
 @@ -0,0 +1,24 @@
 +if TARGET_AM335X_ROCKRTK
 +
@@ -155,7 +155,7 @@ index 00000000000..c632ac852fc
 +	default "am335x_rockrtk"
 +
 +config SYS_VENDOR
-+	default "tor1kk"
++	default "ti"
 +
 +config SYS_SOC
 +	default "am33xx"
@@ -173,42 +173,41 @@ index 00000000000..c632ac852fc
 +source "board/ti/common/Kconfig"
 +
 +endif
-diff --git a/board/tor1kk/am335x_rockrtk/Makefile b/board/tor1kk/am335x_rockrtk/Makefile
+diff --git a/board/ti/am335x_rockrtk/Makefile b/board/ti/am335x_rockrtk/Makefile
 new file mode 100644
-index 00000000000..c34b9b1dd8a
+index 00000000000..e207613d037
 --- /dev/null
-+++ b/board/tor1kk/am335x_rockrtk/Makefile
-@@ -0,0 +1,11 @@
++++ b/board/ti/am335x_rockrtk/Makefile
+@@ -0,0 +1,10 @@
 +# SPDX-License-Identifier: GPL-2.0+
 +#
 +# Makefile
 +#
-+# Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
 +
-+ifeq ($(CONFIG_SKIP_LOWLEVEL_INIT),)
++ifeq ($(CONFIG_$(PHASE_)SKIP_LOWLEVEL_INIT),)
 +obj-y	:= mux.o
 +endif
 +
 +obj-y	+= board.o
-diff --git a/board/tor1kk/am335x_rockrtk/board.c b/board/tor1kk/am335x_rockrtk/board.c
+diff --git a/board/ti/am335x_rockrtk/board.c b/board/ti/am335x_rockrtk/board.c
 new file mode 100644
-index 00000000000..1937532e3c1
+index 00000000000..ece8794123f
 --- /dev/null
-+++ b/board/tor1kk/am335x_rockrtk/board.c
-@@ -0,0 +1,563 @@
++++ b/board/ti/am335x_rockrtk/board.c
+@@ -0,0 +1,606 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * board.c
 + *
-+ * Board functions for TI AM335X based boards
++ * Board functions for AM335x RockRTK board information header
 + *
-+ * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
 + */
 +
-+#include <common.h>
++#include <config.h>
 +#include <dm.h>
 +#include <env.h>
 +#include <errno.h>
++#include <hang.h>
 +#include <image.h>
 +#include <init.h>
 +#include <malloc.h>
@@ -225,21 +224,22 @@ index 00000000000..1937532e3c1
 +#include <asm/arch/mmc_host_def.h>
 +#include <asm/arch/sys_proto.h>
 +#include <asm/arch/mem.h>
++#include <asm/global_data.h>
 +#include <asm/io.h>
 +#include <asm/emif.h>
 +#include <asm/gpio.h>
 +#include <asm/omap_common.h>
-+#include <asm/omap_sec_common.h>
 +#include <asm/omap_mmc.h>
 +#include <i2c.h>
 +#include <miiphy.h>
 +#include <cpsw.h>
 +#include <linux/bitops.h>
++#include <linux/compiler.h>
 +#include <linux/delay.h>
 +#include <power/tps65217.h>
-+#include <power/tps65910.h>
 +#include <env_internal.h>
 +#include <watchdog.h>
++#include "../common/cape_detect.h"
 +#include "board.h"
 +
 +DECLARE_GLOBAL_DATA_PTR;
@@ -266,7 +266,7 @@ index 00000000000..1937532e3c1
 +#define GPIO0_IRQSTATUSRAW	(AM33XX_GPIO0_BASE + 0x024)
 +#define GPIO1_IRQSTATUSRAW	(AM33XX_GPIO1_BASE + 0x024)
 +
-+ 
++
 +#ifndef CONFIG_DM_SERIAL
 +struct serial_device *default_serial_console(void)
 +{
@@ -274,7 +274,7 @@ index 00000000000..1937532e3c1
 +}
 +#endif
 +
-+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
++#if !CONFIG_IS_ENABLED(SKIP_LOWLEVEL_INIT)
 +
 +static const struct ddr_data ddr3_am335x_rockrtk_ddr_data = {
 +	.datardsratio0 = 0x00000040,
@@ -312,10 +312,11 @@ index 00000000000..1937532e3c1
 +	.dt1ioctl		= 0x0000018B,
 +};
 +
++
 +#ifdef CONFIG_SPL_OS_BOOT
 +int spl_start_uboot(void)
 +{
-+#ifdef CONFIG_SPL_SERIAL_SUPPORT
++#ifdef CONFIG_SPL_SERIAL
 +	/* break into full u-boot on 'c' */
 +	if (serial_tstc() && serial_getc() == 'c')
 +		return 1;
@@ -335,12 +336,13 @@ index 00000000000..1937532e3c1
 +const struct dpll_params *get_dpll_ddr_params(void)
 +{
 +	int ind = get_sys_clk_index();
-+ 
++
 +	return &dpll_ddr3_400MHz[ind];
 +}
 +
 +static u8 bone_not_connected_to_ac_power(void)
 +{
++ 
 +	uchar pmic_status_reg;
 +	if (tps65217_reg_read(TPS65217_STATUS,
 +					&pmic_status_reg))
@@ -356,22 +358,36 @@ index 00000000000..1937532e3c1
 +const struct dpll_params *get_dpll_mpu_params(void)
 +{
 +	int ind = get_sys_clk_index();
-+	
-+	return &dpll_mpu_opp[ind][5];
++	int freq = am335x_get_efuse_mpu_max_freq(cdev);
++
++	if (bone_not_connected_to_ac_power())
++		freq = MPUPLL_M_600;
++
++	switch (freq) {
++	case MPUPLL_M_1000:
++		return &dpll_mpu_opp[ind][5];
++	case MPUPLL_M_800:
++		return &dpll_mpu_opp[ind][4];
++	case MPUPLL_M_720:
++		return &dpll_mpu_opp[ind][3];
++	case MPUPLL_M_600:
++		return &dpll_mpu_opp[ind][2];
++	case MPUPLL_M_500:
++		return &dpll_mpu_opp100;
++	case MPUPLL_M_300:
++		return &dpll_mpu_opp[ind][0];
++	}
++
++	return &dpll_mpu_opp[ind][0];
 +}
 +
 +static void scale_vcores_bone(int freq)
 +{
 +	int usb_cur_lim, mpu_vdd;
 +
-+#ifndef CONFIG_DM_I2C
-+	if (i2c_probe(TPS65217_CHIP_PM))
-+		return;
-+#else
 +	if (power_tps65217_init(0))
 +		return;
-+#endif
-+ 
++
 +	freq = MPUPLL_M_1000;
 +
 +	switch (freq) {
@@ -415,10 +431,6 @@ index 00000000000..1937532e3c1
 +		return;
 +	}
 +
-+	/*
-+	 * Set LDO3, LDO4 output voltage to 3.3V for Beaglebone.
-+	 * Set LDO3 to 1.8V and LDO4 to 3.3V for Beaglebone Black.
-+	 */
 + 
 +	if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
 +					TPS65217_DEFLS1,
@@ -426,6 +438,7 @@ index 00000000000..1937532e3c1
 +					TPS65217_LDO_MASK))
 +		puts("tps65217_reg_write failure\n");
 + 
++
 +	if (tps65217_reg_write(TPS65217_PROT_LEVEL_2,
 +			       TPS65217_DEFLS2,
 +			       TPS65217_LDO_VOLTAGE_OUT_3_3,
@@ -441,10 +454,6 @@ index 00000000000..1937532e3c1
 +
 +	if (first_time) {
 +		enable_i2c0_pin_mux();
-+#ifndef CONFIG_DM_I2C
-+		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
-+			 CONFIG_SYS_OMAP24_I2C_SLAVE);
-+#endif
 +		first_time = false;
 +	}
 +}
@@ -452,15 +461,11 @@ index 00000000000..1937532e3c1
 +void scale_vcores(void)
 +{
 +	int freq;
-+	
-+	// puts("Scale Vcores Start\n");
 +
 +	gpi2c_init();
 +	freq = am335x_get_efuse_mpu_max_freq(cdev);
 +
 +	scale_vcores_bone(freq);
-+
-+	// puts("Scale Vcores Finish\n");
 +}
 +
 +void set_uart_mux_conf(void)
@@ -485,16 +490,48 @@ index 00000000000..1937532e3c1
 +	enable_board_pin_mux();
 +}
 +
++const struct ctrl_ioregs ioregs_evmsk = {
++	.cm0ioctl		= MT41J128MJT125_IOCTRL_VALUE,
++	.cm1ioctl		= MT41J128MJT125_IOCTRL_VALUE,
++	.cm2ioctl		= MT41J128MJT125_IOCTRL_VALUE,
++	.dt0ioctl		= MT41J128MJT125_IOCTRL_VALUE,
++	.dt1ioctl		= MT41J128MJT125_IOCTRL_VALUE,
++};
++
++const struct ctrl_ioregs ioregs_bonelt = {
++	.cm0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
++	.cm1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
++	.cm2ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
++	.dt0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
++	.dt1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
++};
++
++const struct ctrl_ioregs ioregs_evm15 = {
++	.cm0ioctl		= MT41J512M8RH125_IOCTRL_VALUE,
++	.cm1ioctl		= MT41J512M8RH125_IOCTRL_VALUE,
++	.cm2ioctl		= MT41J512M8RH125_IOCTRL_VALUE,
++	.dt0ioctl		= MT41J512M8RH125_IOCTRL_VALUE,
++	.dt1ioctl		= MT41J512M8RH125_IOCTRL_VALUE,
++};
++
++const struct ctrl_ioregs ioregs = {
++	.cm0ioctl		= MT47H128M16RT25E_IOCTRL_VALUE,
++	.cm1ioctl		= MT47H128M16RT25E_IOCTRL_VALUE,
++	.cm2ioctl		= MT47H128M16RT25E_IOCTRL_VALUE,
++	.dt0ioctl		= MT47H128M16RT25E_IOCTRL_VALUE,
++	.dt1ioctl		= MT47H128M16RT25E_IOCTRL_VALUE,
++};
++
 +void sdram_init(void)
 +{
-+ 	config_ddr(400, &ddr3_am335x_rockrtk_ioregs_data, &ddr3_am335x_rockrtk_ddr_data,
-+			&ddr3_am335x_rockrtk_cmd_ctrl_data, &ddr3_am335x_rockrtk_emif_reg_data, 0);
++	config_ddr(400, &ddr3_am335x_rockrtk_ioregs_data, &ddr3_am335x_rockrtk_ddr_data,
++		&ddr3_am335x_rockrtk_cmd_ctrl_data, &ddr3_am335x_rockrtk_emif_reg_data, 0);
 +	mdelay(100);
 +}
 +#endif
 +
-+#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_SPL_BUILD) || \
-+	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD)))
++#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_XPL_BUILD) || \
++	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD)))
 +static void request_and_set_gpio(int gpio, char *name, int val)
 +{
 +	int ret;
@@ -522,14 +559,12 @@ index 00000000000..1937532e3c1
 +#define REQUEST_AND_SET_GPIO(N)	request_and_set_gpio(N, #N, 1);
 +#define REQUEST_AND_CLR_GPIO(N)	request_and_set_gpio(N, #N, 0);
 +
-+
 +#endif
 +
 +#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_CONTROL) && \
 +	defined(CONFIG_DM_ETH) && defined(CONFIG_DRIVER_TI_CPSW)
 +
 +#define MAX_CPSW_SLAVES	2
-+
 +
 +/* At the moment, we do not want to stop booting for any failures here */
 +int ft_board_setup(void *fdt, struct bd_info *bd)
@@ -595,10 +630,11 @@ index 00000000000..1937532e3c1
 +		}
 +	}
 +
-+done:
 +	return 0;
 +}
 +#endif
++
++static bool __maybe_unused prueth_is_mii = true;
 +
 +/*
 + * Basic board specific setup.  Pinmux has been handled already.
@@ -609,9 +645,13 @@ index 00000000000..1937532e3c1
 +	hw_watchdog_init();
 +#endif
 +
-+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
++	gd->bd->bi_boot_params = CFG_SYS_SDRAM_BASE + 0x100;
 +#if defined(CONFIG_NOR) || defined(CONFIG_MTD_RAW_NAND)
 +	gpmc_init();
++#endif
++
++#if defined(CONFIG_CLOCK_SYNTHESIZER) && (!defined(CONFIG_XPL_BUILD) || \
++	(defined(CONFIG_SPL_ETH) && defined(CONFIG_XPL_BUILD)))
 +#endif
 +
 +	return 0;
@@ -620,14 +660,21 @@ index 00000000000..1937532e3c1
 +#ifdef CONFIG_BOARD_LATE_INIT
 +int board_late_init(void)
 +{
-+	struct udevice *dev;
-+#if !defined(CONFIG_SPL_BUILD)
++#if !defined(CONFIG_XPL_BUILD)
 +	uint8_t mac_addr[6];
 +	uint32_t mac_hi, mac_lo;
 +#endif
-+ 
 +
-+#if !defined(CONFIG_SPL_BUILD)
++#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
++ 	/*
++	 * Default FIT boot on HS devices. Non FIT images are not allowed
++	 * on HS devices.
++	 */
++	if (get_device_type() == HS_DEVICE)
++		env_set("boot_fit", "1");
++#endif
++
++#if !defined(CONFIG_XPL_BUILD)
 +	/* try reading mac address from efuse */
 +	mac_lo = readl(&cdev->macid0l);
 +	mac_hi = readl(&cdev->macid0h);
@@ -658,6 +705,8 @@ index 00000000000..1937532e3c1
 +		if (is_valid_ethaddr(mac_addr))
 +			eth_env_set_enetaddr("eth1addr", mac_addr);
 +	}
++
++	env_set("ice_mii", prueth_is_mii ? "mii" : "rmii");
 +#endif
 +
 +	if (!env_get("serial#")) {
@@ -674,8 +723,9 @@ index 00000000000..1937532e3c1
 +}
 +#endif
 +
-+/* CPSW platdata */
-+#if !CONFIG_IS_ENABLED(OF_CONTROL)
++/* CPSW plat */
++#if (CONFIG_IS_ENABLED(NET) || CONFIG_IS_ENABLED(NET_LWIP)) && \
++    !CONFIG_IS_ENABLED(OF_CONTROL)
 +struct cpsw_slave_data slave_data[] = {
 +	{
 +		.slave_reg_ofs  = CPSW_SLAVE0_OFFSET,
@@ -716,22 +766,14 @@ index 00000000000..1937532e3c1
 +	.priv_pdata = &am335_eth_data,
 +};
 +
-+U_BOOT_DEVICE(am335x_eth) = {
++U_BOOT_DRVINFO(am335x_eth) = {
 +	.name = "eth_cpsw",
-+	.platdata = &cpsw_pdata,
++	.plat = &cpsw_pdata,
 +};
 +#endif
 +
-+
-+#ifdef CONFIG_TI_SECURE_DEVICE
-+void board_fit_image_post_process(void **p_image, size_t *p_size)
-+{
-+	secure_boot_verify_image(p_image, p_size);
-+}
-+#endif
-+
 +#if !CONFIG_IS_ENABLED(OF_CONTROL)
-+static const struct omap_hsmmc_plat am335x_mmc0_platdata = {
++static const struct omap_hsmmc_plat am335x_mmc0_plat = {
 +	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
 +	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
 +	.cfg.f_min = 400000,
@@ -740,12 +782,12 @@ index 00000000000..1937532e3c1
 +	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 +};
 +
-+U_BOOT_DEVICE(am335x_mmc0) = {
++U_BOOT_DRVINFO(am335x_mmc0) = {
 +	.name = "omap_hsmmc",
-+	.platdata = &am335x_mmc0_platdata,
++	.plat = &am335x_mmc0_plat,
 +};
 +
-+static const struct omap_hsmmc_plat am335x_mmc1_platdata = {
++static const struct omap_hsmmc_plat am335x_mmc1_plat = {
 +	.base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE,
 +	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_8BIT,
 +	.cfg.f_min = 400000,
@@ -754,42 +796,29 @@ index 00000000000..1937532e3c1
 +	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 +};
 +
-+U_BOOT_DEVICE(am335x_mmc1) = {
++U_BOOT_DRVINFO(am335x_mmc1) = {
 +	.name = "omap_hsmmc",
-+	.platdata = &am335x_mmc1_platdata,
++	.plat = &am335x_mmc1_plat,
 +};
 +#endif
-diff --git a/board/tor1kk/am335x_rockrtk/board.h b/board/tor1kk/am335x_rockrtk/board.h
+diff --git a/board/ti/am335x_rockrtk/board.h b/board/ti/am335x_rockrtk/board.h
 new file mode 100644
-index 00000000000..b7ee2de3586
+index 00000000000..089080c1371
 --- /dev/null
-+++ b/board/tor1kk/am335x_rockrtk/board.h
-@@ -0,0 +1,41 @@
++++ b/board/ti/am335x_rockrtk/board.h
+@@ -0,0 +1,28 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * board.h
 + *
-+ * TI AM335x boards information header
++ * AM335x RockRTK board information header
 + *
-+ * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
 + */
 +
 +#ifndef _BOARD_H_
 +#define _BOARD_H_
 +
-+/**
-+ * AM335X (EMIF_4D) EMIF REG_COS_COUNT_1, REG_COS_COUNT_2, and
-+ * REG_PR_OLD_COUNT values to avoid LCDC DMA FIFO underflows and Frame
-+ * Synchronization Lost errors. The values are the biggest that work
-+ * reliably with offered video modes and the memory subsystem on the
-+ * boards. These register have are briefly documented in "7.3.3.5.2
-+ * Command Starvation" section of AM335x TRM. The REG_COS_COUNT_1 and
-+ * REG_COS_COUNT_2 do not have any effect on current versions of
-+ * AM335x.
-+ */
-+#define EMIF_OCP_CONFIG_BEAGLEBONE_BLACK       0x00141414
-+#define EMIF_OCP_CONFIG_AM335X_EVM             0x003d3d3d
-+
++#include <linux/string.h>
 + 
 +/*
 + * We have three pin mux functions that must exist.  We must be able to enable
@@ -806,12 +835,12 @@ index 00000000000..b7ee2de3586
 +void enable_i2c0_pin_mux(void);
 +void enable_board_pin_mux(void);
 +#endif
-diff --git a/board/tor1kk/am335x_rockrtk/mux.c b/board/tor1kk/am335x_rockrtk/mux.c
+diff --git a/board/ti/am335x_rockrtk/mux.c b/board/ti/am335x_rockrtk/mux.c
 new file mode 100644
-index 00000000000..8458495c465
+index 00000000000..7d48d26bb0c
 --- /dev/null
-+++ b/board/tor1kk/am335x_rockrtk/mux.c
-@@ -0,0 +1,361 @@
++++ b/board/ti/am335x_rockrtk/mux.c
+@@ -0,0 +1,338 @@
 +/*
 + * mux.c
 + *
@@ -827,7 +856,7 @@ index 00000000000..8458495c465
 + * GNU General Public License for more details.
 + */
 +
-+#include <common.h>
++#include <config.h>
 +#include <asm/arch/sys_proto.h>
 +#include <asm/arch/hardware.h>
 +#include <asm/arch/mux.h>
@@ -1142,29 +1171,6 @@ index 00000000000..8458495c465
 +#define I2C_CPLD_ADDR	0x35
 +#define CFG_REG		0x10
 +
-+static unsigned short detect_daughter_board_profile(void)
-+{
-+	unsigned short val;
-+
-+#ifndef CONFIG_DM_I2C
-+	if (i2c_probe(I2C_CPLD_ADDR))
-+		return PROFILE_NONE;
-+
-+	if (i2c_read(I2C_CPLD_ADDR, CFG_REG, 1, (unsigned char *)(&val), 2))
-+		return PROFILE_NONE;
-+#else
-+	struct udevice *dev = NULL;
-+	int rc;
-+
-+	rc = i2c_get_chip_for_busnum(0, I2C_CPLD_ADDR, 1, &dev);
-+	if (rc)
-+		return PROFILE_NONE;
-+	rc = dm_i2c_read(dev, CFG_REG, (unsigned char *)(&val), 2);
-+	if (rc)
-+		return PROFILE_NONE;
-+#endif
-+	return (1 << (val & PROFILE_MASK));
-+}
 +
 +void enable_board_pin_mux(void)
 +{
@@ -1175,44 +1181,58 @@ index 00000000000..8458495c465
 +}
 diff --git a/configs/am335x_rockrtk_defconfig b/configs/am335x_rockrtk_defconfig
 new file mode 100644
-index 00000000000..904cf568142
+index 00000000000..bfd12daf430
 --- /dev/null
 +++ b/configs/am335x_rockrtk_defconfig
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,130 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_CPU_INIT=y
 +CONFIG_ARCH_OMAP2PLUS=y
 +CONFIG_TI_COMMON_CMD_OPTIONS=y
-+CONFIG_TI_I2C_BOARD_DETECT=n
++CONFIG_SF_DEFAULT_SPEED=24000000
++CONFIG_DEFAULT_DEVICE_TREE="am335x-rockrtk"
 +CONFIG_AM33XX=y
 +CONFIG_TARGET_AM335X_ROCKRTK=y
++# CONFIG_CLOCK_SYNTHESIZER=y
++CONFIG_AM335X_USB0=y
++# CONFIG_AM335X_USB0_PERIPHERAL=y
++CONFIG_AM335X_USB1=y
++CONFIG_SYS_BOOTM_LEN=0x1000000
 +CONFIG_SPL=y
-+CONFIG_DEFAULT_DEVICE_TREE="am335x-rockrtk"
++CONFIG_TIMESTAMP=y
++CONFIG_FIT_SIGNATURE=n
++CONFIG_FIT_VERBOSE=n
++CONFIG_SPL_LOAD_FIT=y
 +CONFIG_DISTRO_DEFAULTS=y
-+CONFIG_SPL_LOAD_FIT=n
-+# CONFIG_USE_SPL_FIT_GENERATOR is not set
 +CONFIG_OF_BOARD_SETUP=y
-+CONFIG_BOOTCOMMAND="if test ${boot_fit} -eq 1; then run update_to_fit; fi; run findfdt; run init_console; run envboot; run distro_bootcmd"
++CONFIG_BOOTCOMMAND="run findfdt; run init_console; run finduuid; run distro_bootcmd"
 +CONFIG_LOGLEVEL=3
 +CONFIG_SYS_CONSOLE_INFO_QUIET=y
 +CONFIG_ARCH_MISC_INIT=y
++CONFIG_SPL_SYS_MALLOC=y
++CONFIG_SPL_SYS_MALLOC_SIZE=0x800000
 +CONFIG_SPL_FIT_IMAGE_TINY=y
-+CONFIG_SPL_ETH_SUPPORT=y
-+# CONFIG_SPL_FS_EXT4 is not set
-+CONFIG_SPL_MTD_SUPPORT=y
-+CONFIG_SPL_MUSB_NEW_SUPPORT=y
++CONFIG_SPL_ETH=y
++# CONFIG_SPL_FS_EXT4=y
++CONFIG_SPL_FS_LOAD_PAYLOAD_NAME="u-boot.img"
++CONFIG_SPL_MTD=y
++CONFIG_SPL_MUSB_NEW=y
 +CONFIG_SPL_NAND_DRIVERS=y
 +CONFIG_SPL_NAND_ECC=y
 +CONFIG_SPL_NAND_BASE=y
-+CONFIG_SPL_NET_SUPPORT=y
++CONFIG_SPL_NET=y
 +CONFIG_SPL_NET_VCI_STRING="AM335x U-Boot SPL"
 +CONFIG_SPL_OS_BOOT=y
-+CONFIG_SPL_USB_GADGET=n
-+CONFIG_SPL_USB_ETHER=n
++CONFIG_SYS_NAND_SPL_KERNEL_OFFS=0x200000
++# CONFIG_SPL_FALCON_BOOT_MMCSD=y
++CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR=0x1700
++CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR=0x1500
++CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS=0x200
++CONFIG_CMD_EXTENSION=y
 +CONFIG_CMD_SPL=y
 +CONFIG_CMD_SPL_NAND_OFS=0x00080000
-+# CONFIG_CMD_FLASH is not set
-+CONFIG_CMD_NAND=n
++CONFIG_SYS_I2C_EEPROM_ADDR_LEN=2
++CONFIG_CMD_NAND=y
 +# CONFIG_CMD_SETEXPR is not set
 +CONFIG_BOOTP_DNS2=y
 +CONFIG_CMD_MTDPARTS=y
@@ -1225,66 +1245,87 @@ index 00000000000..904cf568142
 +CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
 +CONFIG_SPL_ENV_IS_NOWHERE=y
 +CONFIG_VERSION_VARIABLE=y
++CONFIG_NET_RETRY_COUNT=10
 +CONFIG_BOOTP_SEND_HOSTNAME=y
 +CONFIG_BOOTCOUNT_LIMIT=y
++CONFIG_SYS_BOOTCOUNT_BE=y
 +CONFIG_CLK=y
-+CONFIG_CLK_CDCE9XX=n
++# CONFIG_CLK_CDCE9XX=y
++# CONFIG_CLK_TI_CTRL=y
 +CONFIG_DFU_TFTP=y
 +CONFIG_DFU_MMC=y
-+CONFIG_DFU_NAND=n
++CONFIG_DFU_NAND=y
 +CONFIG_DFU_RAM=y
 +CONFIG_USB_FUNCTION_FASTBOOT=y
-+CONFIG_FASTBOOT_FLASH=n
++CONFIG_FASTBOOT_FLASH=y
 +CONFIG_FASTBOOT_FLASH_MMC_DEV=1
 +CONFIG_FASTBOOT_CMD_OEM_FORMAT=y
 +CONFIG_DM_I2C=y
 +CONFIG_MISC=y
-+CONFIG_DM_MMC=y
++CONFIG_SYS_I2C_EEPROM_ADDR=0x50
 +# CONFIG_MMC_HW_PARTITIONING is not set
 +CONFIG_MMC_OMAP_HS=y
 +CONFIG_MTD=y
 +CONFIG_MTD_RAW_NAND=y
++CONFIG_SYS_NAND_BLOCK_SIZE=0x20000
++CONFIG_SYS_NAND_ONFI_DETECTION=y
++CONFIG_SYS_NAND_PAGE_SIZE=0x800
++CONFIG_SYS_NAND_OOBSIZE=0x40
++CONFIG_SYS_NAND_U_BOOT_LOCATIONS=y
++CONFIG_SYS_NAND_U_BOOT_OFFS=0xc0000
 +CONFIG_DM_SPI_FLASH=y
-+CONFIG_SF_DEFAULT_SPEED=24000000
-+CONFIG_SPI_FLASH_WINBOND=n
++# CONFIG_SPI_FLASH_STMICRO=y
++# CONFIG_SPI_FLASH_WINBOND=y
 +CONFIG_PHY_ATHEROS=y
 +CONFIG_PHY_SMSC=y
-+CONFIG_DM_ETH=y
++CONFIG_PHY_GIGE=y
 +CONFIG_MII=y
 +CONFIG_DRIVER_TI_CPSW=y
++CONFIG_DM_PMIC=y
++# CONFIG_SPL_DM_PMIC is not set
++CONFIG_PMIC_TPS65217=y
++# CONFIG_SPL_POWER_TPS65910=y
 +CONFIG_SPI=y
 +CONFIG_DM_SPI=y
 +CONFIG_OMAP3_SPI=y
 +CONFIG_TIMER=y
 +CONFIG_OMAP_TIMER=y
-+CONFIG_USB=n
-+CONFIG_DM_USB=n
-+CONFIG_DM_USB_GADGET=n
-+CONFIG_SPL_DM_USB_GADGET=n
-+CONFIG_USB_MUSB_HOST=n
-+CONFIG_USB_MUSB_GADGET=n
-+CONFIG_USB_MUSB_TI=n
-+CONFIG_USB_GADGET=n
++CONFIG_USB=y
++CONFIG_DM_USB_GADGET=y
++CONFIG_SPL_DM_USB_GADGET=y
++CONFIG_USB_MUSB_HOST=y
++CONFIG_USB_MUSB_GADGET=y
++CONFIG_USB_MUSB_TI=y
++CONFIG_USB_GADGET=y
++CONFIG_SPL_USB_GADGET=y
 +CONFIG_USB_GADGET_MANUFACTURER="Texas Instruments"
 +CONFIG_USB_GADGET_VENDOR_NUM=0x0451
 +CONFIG_USB_GADGET_PRODUCT_NUM=0xd022
-+CONFIG_USB_ETHER=n
++CONFIG_USB_ETHER=y
++CONFIG_SPL_USB_ETHER=y
 +CONFIG_WDT=y
-+CONFIG_SPL_WDT=n
++# CONFIG_SPL_WDT is not set
 +CONFIG_DYNAMIC_CRC_TABLE=y
-+CONFIG_RSA=y
 +CONFIG_LZO=y
++
++
++# CONFIG_DEBUG_UART=y
++# CONFIG_DEBUG_UART_BASE=0x44e09000
++# CONFIG_DEBUG_UART_CLOCK=48000000
++# CONFIG_DEBUG_UART_OMAP=y
++# CONFIG_DEBUG_UART_SHIFT=2
++# CONFIG_DEBUG_UART_ANNOUNCE=y
 \ No newline at end of file
 diff --git a/include/configs/am335x_rockrtk.h b/include/configs/am335x_rockrtk.h
 new file mode 100644
-index 00000000000..0f157d506c2
+index 00000000000..6a5d1b0f29d
 --- /dev/null
 +++ b/include/configs/am335x_rockrtk.h
-@@ -0,0 +1,293 @@
+@@ -0,0 +1,173 @@
 +/*
-+ * am335x_evm.h
++ * am335x_rockrtk.h
 + *
-+ * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
++ * Copyright (C) 2011 Texas Instruments Incorporated - https://www.ti.com/
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU General Public License as
@@ -1296,21 +1337,11 @@ index 00000000000..0f157d506c2
 + * GNU General Public License for more details.
 + */
 +
-+#ifndef __CONFIG_AM335X_EVM_H
-+#define __CONFIG_AM335X_EVM_H
++#ifndef __CONFIG_AM335X_ROCKRTK_H
++#define __CONFIG_AM335X_ROCKRTK_H
 +
 +#include <configs/ti_am335x_common.h>
 +#include <linux/sizes.h>
-+
-+// #define DEBUG	1
-+ 
-+#ifndef CONFIG_SPL_BUILD
-+# define CONFIG_TIMESTAMP
-+#endif
-+
-+#define CONFIG_SYS_BOOTM_LEN		SZ_16M
-+
-+#define CONFIG_MACH_TYPE		MACH_TYPE_AM335XEVM
 +
 +/* Clock Defines */
 +#define V_OSCK				24000000  /* Clock output from T2 */
@@ -1318,14 +1349,12 @@ index 00000000000..0f157d506c2
 +
 +#ifdef CONFIG_MTD_RAW_NAND
 +#define NANDARGS \
-+	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
-+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 +	"nandargs=setenv bootargs console=${console} " \
 +		"${optargs} " \
 +		"root=${nandroot} " \
 +		"rootfstype=${nandrootfstype}\0" \
 +	"nandroot=ubi0:rootfs rw ubi.mtd=NAND.file-system,2048\0" \
-+	"nandrootfstype=ubifs rootwait=1\0" \
++	"nandrootfstype=ubifs rootwait\0" \
 +	"nandboot=echo Booting from nand ...; " \
 +		"run nandargs; " \
 +		"nand read ${fdtaddr} NAND.u-boot-spl-os; " \
@@ -1335,15 +1364,6 @@ index 00000000000..0f157d506c2
 +#define NANDARGS ""
 +#endif
 +
-+#define BOOTENV_DEV_LEGACY_MMC(devtypeu, devtypel, instance) \
-+	"bootcmd_" #devtypel #instance "=" \
-+	"setenv mmcdev " #instance"; "\
-+	"setenv bootpart " #instance":2 ; "\
-+	"run mmcboot\0"
-+
-+#define BOOTENV_DEV_NAME_LEGACY_MMC(devtypeu, devtypel, instance) \
-+	#devtypel #instance " "
-+
 +#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
 +	"bootcmd_" #devtypel "=" \
 +	"run nandboot\0"
@@ -1351,7 +1371,7 @@ index 00000000000..0f157d506c2
 +#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
 +	#devtypel #instance " "
 +
-+#if CONFIG_IS_ENABLED(CMD_USB)
++#if IS_ENABLED(CONFIG_CMD_USB)
 +# define BOOT_TARGET_USB(func) func(USB, usb, 0)
 +#else
 +# define BOOT_TARGET_USB(func)
@@ -1371,9 +1391,7 @@ index 00000000000..0f157d506c2
 +
 +#define BOOT_TARGET_DEVICES(func) \
 +	func(MMC, mmc, 0) \
-+	func(LEGACY_MMC, legacy_mmc, 0) \
 +	func(MMC, mmc, 1) \
-+	func(LEGACY_MMC, legacy_mmc, 1) \
 +	func(NAND, nand, 0) \
 +	BOOT_TARGET_USB(func) \
 +	BOOT_TARGET_PXE(func) \
@@ -1381,18 +1399,13 @@ index 00000000000..0f157d506c2
 +
 +#include <config_distro_bootcmd.h>
 +
-+#ifndef CONFIG_SPL_BUILD
-+#include <environment/ti/dfu.h>
-+#include <environment/ti/mmc.h>
++#ifndef CONFIG_XPL_BUILD
++#include <env/ti/dfu.h>
 +
-+#define CONFIG_EXTRA_ENV_SETTINGS \
++#define CFG_EXTRA_ENV_SETTINGS \
 +	DEFAULT_LINUX_BOOT_ENV \
-+	DEFAULT_MMC_TI_ARGS \
-+	DEFAULT_FIT_TI_ARGS \
-+	"bootpart=0:2\0" \
-+	"bootdir=/boot\0" \
-+	"bootfile=zImage\0" \
 +	"fdtfile=undefined\0" \
++	"finduuid=part uuid mmc 0:2 uuid\0" \
 +	"console=ttyO0,115200n8\0" \
 +	"partitions=" \
 +		"uuid_disk=${uuid_gpt_disk};" \
@@ -1425,8 +1438,7 @@ index 00000000000..0f157d506c2
 +		"run ramargs; " \
 +		"bootz ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
 +	"findfdt=am335x-rockrtk.dtb\0" \
-+	"init_console=setenv console ttyO0,115200n8;" \
-+		"fi;\0" \
++	"init_console = setenv console ttyO3,115200n8;\0" \
 +	NANDARGS \
 +	NETARGS \
 +	DFUARGS \
@@ -1434,40 +1446,17 @@ index 00000000000..0f157d506c2
 +#endif
 +
 +/* NS16550 Configuration */
-+#define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
-+#define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
-+#define CONFIG_SYS_NS16550_COM3		0x48024000	/* UART2 */
-+#define CONFIG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
-+#define CONFIG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
-+#define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
-+
-+#define CONFIG_ENV_EEPROM_IS_ON_I2C
-+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
-+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
-+
-+/* PMIC support */
-+#define CONFIG_POWER_TPS65217
-+#define CONFIG_POWER_TPS65910
-+
-+/* SPL */
-+#ifndef CONFIG_NOR_BOOT
-+/* Bootcount using the RTC block */
-+#define CONFIG_SYS_BOOTCOUNT_BE
-+
-+/* USB gadget RNDIS */
-+#endif
++#define CFG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
++#define CFG_SYS_NS16550_COM2		0x48022000	/* UART1 */
++#define CFG_SYS_NS16550_COM3		0x48024000	/* UART2 */
++#define CFG_SYS_NS16550_COM4		0x481a6000	/* UART3 */
++#define CFG_SYS_NS16550_COM5		0x481a8000	/* UART4 */
++#define CFG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 +
 +#ifdef CONFIG_MTD_RAW_NAND
 +/* NAND: device related configs */
-+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
-+#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
-+					 CONFIG_SYS_NAND_PAGE_SIZE)
-+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
-+#define CONFIG_SYS_NAND_OOBSIZE		64
-+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 +/* NAND: driver related configs */
-+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
-+#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
++#define CFG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 +					 10, 11, 12, 13, 14, 15, 16, 17, \
 +					 18, 19, 20, 21, 22, 23, 24, 25, \
 +					 26, 27, 28, 29, 30, 31, 32, 33, \
@@ -1475,77 +1464,18 @@ index 00000000000..0f157d506c2
 +					 42, 43, 44, 45, 46, 47, 48, 49, \
 +					 50, 51, 52, 53, 54, 55, 56, 57, }
 +
-+#define CONFIG_SYS_NAND_ECCSIZE		512
-+#define CONFIG_SYS_NAND_ECCBYTES	14
-+#define CONFIG_SYS_NAND_ONFI_DETECTION
-+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
-+/* NAND: SPL related configs */
-+#ifdef CONFIG_SPL_OS_BOOT
-+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
-+#endif
++#define CFG_SYS_NAND_ECCSIZE		512
++#define CFG_SYS_NAND_ECCBYTES	14
 +#endif /* !CONFIG_MTD_RAW_NAND */
 +
-+/*
-+ * For NOR boot, we must set this to the start of where NOR is mapped
-+ * in memory.
-+ */
-+
-+/*
-+ * USB configuration.  We enable MUSB support, both for host and for
-+ * gadget.  We set USB0 as peripheral and USB1 as host, based on the
-+ * board schematic and physical port wired to each.  Then for host we
-+ * add mass storage support and for gadget we add both RNDIS ethernet
-+ * and DFU.
-+ */
-+#define CONFIG_AM335X_USB0
-+#define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
-+#define CONFIG_AM335X_USB1
-+#define CONFIG_AM335X_USB1_MODE MUSB_HOST
-+
-+/*
-+ * Disable MMC DM for SPL build and can be re-enabled after adding
-+ * DM support in SPL
-+ */
-+#ifdef CONFIG_SPL_BUILD
-+#undef CONFIG_DM_MMC
-+#undef CONFIG_TIMER
-+#endif
-+
-+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
-+/* Remove other SPL modes. */
-+/* disable host part of MUSB in SPL */
-+/* disable EFI partitions and partition UUID support */
-+#endif
-+
 +/* USB Device Firmware Update support */
-+#ifndef CONFIG_SPL_BUILD
++#ifndef CONFIG_XPL_BUILD
 +#define DFUARGS \
 +	DFU_ALT_INFO_EMMC \
 +	DFU_ALT_INFO_MMC \
 +	DFU_ALT_INFO_RAM \
 +	DFU_ALT_INFO_NAND
 +#endif
-+
-+/*
-+ * Default to using SPI for environment, etc.
-+ * 0x000000 - 0x020000 : SPL (128KiB)
-+ * 0x020000 - 0x0A0000 : U-Boot (512KiB)
-+ * 0x0A0000 - 0x0BFFFF : First copy of U-Boot Environment (128KiB)
-+ * 0x0C0000 - 0x0DFFFF : Second copy of U-Boot Environment (128KiB)
-+ * 0x0E0000 - 0x442000 : Linux Kernel
-+ * 0x442000 - 0x800000 : Userland
-+ */
-+#if defined(CONFIG_SPI_BOOT)
-+/* SPL related */
-+#elif defined(CONFIG_EMMC_BOOT)
-+#define CONFIG_SYS_MMC_MAX_DEVICE	2
-+#elif defined(CONFIG_ENV_IS_IN_NAND)
-+#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
-+#endif
-+
-+/* Network. */
-+/* Enable Atheros phy driver */
 +
 +/*
 + * NOR Size = 16 MiB
@@ -1560,20 +1490,11 @@ index 00000000000..0f157d506c2
 + * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
 + */
 +#if defined(CONFIG_NOR)
-+#define CONFIG_SYS_MAX_FLASH_SECT	128
-+#define CONFIG_SYS_MAX_FLASH_BANKS	1
-+#define CONFIG_SYS_FLASH_BASE		(0x08000000)
-+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
-+#define CONFIG_SYS_FLASH_SIZE		0x01000000
-+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
++#define CFG_SYS_FLASH_BASE		(0x08000000)
++#define CFG_SYS_FLASH_SIZE		0x01000000
 +#endif  /* NOR support */
 +
-+#ifdef CONFIG_DRIVER_TI_CPSW
-+#define CONFIG_CLOCK_SYNTHESIZER
-+#define CLK_SYNTHESIZER_I2C_ADDR 0x65
-+#endif
-+
-+#endif	/* ! __CONFIG_AM335X_EVM_H */
++#endif	/* ! __CONFIG_AM335X_ROCKRTK_H */
 -- 
 2.43.0
 
