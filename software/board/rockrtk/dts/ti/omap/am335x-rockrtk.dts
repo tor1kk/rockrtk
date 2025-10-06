@@ -193,10 +193,9 @@
 	brcmf: wifi@1 {
 		status = "okay";
 		reg = <1>;
-		compatible = "brcm,bcm43456-fmac";
+		compatible = "brcm,bcm4329-fmac";
 
-		brcm,broken_sg_support;
-  		brcm,sd_head_align = <4>;
+ 		brcm,sd_head_align = <4>;
 		brcm,sd_sgentry_align = <512>;
 
         interrupt-parent = <&gpio0>;
