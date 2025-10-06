@@ -195,6 +195,7 @@
 		reg = <1>;
 		compatible = "brcm,bcm43456-fmac";
 
+		brcm,broken_sg_support;
   		brcm,sd_head_align = <4>;
 		brcm,sd_sgentry_align = <512>;
 
