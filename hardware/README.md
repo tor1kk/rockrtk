@@ -1,4 +1,4 @@
-# AM3358 Based board for RTK applications
+# AM3358 Based board for RTK applications(RockRTK)
 
 RockRTK is a custom hardware platform based on **Texas Instruments AM3358**, originally designed with inspiration from the BeagleBone Black (BBB).  
 The board is intended for **RTK (Real-Time Kinematic) applications** and provides high-precision positioning with integrated communication interfaces.
