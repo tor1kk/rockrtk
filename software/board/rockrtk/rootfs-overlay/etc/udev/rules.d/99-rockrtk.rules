@@ -1,0 +1,2 @@
+# u-blox ZED-F9P stable symlink /dev/ttyF9P
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="ttyF9P", MODE="0666"
