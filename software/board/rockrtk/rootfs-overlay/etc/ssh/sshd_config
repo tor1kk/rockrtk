@@ -1,4 +1,4 @@
 PermitRootLogin yes
 PasswordAuthentication yes
 UsePAM yes
-Subsystem sftp /usr/lib/openssh/sftp-server
+Subsystem sftp /usr/libexec/sftp-server
