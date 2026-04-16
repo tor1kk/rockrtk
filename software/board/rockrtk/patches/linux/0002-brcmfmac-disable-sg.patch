@@ -1,0 +1,33 @@
+--- a/include/linux/platform_data/brcmfmac.h	2026-02-21 20:14:26.859419806 +0200
++++ b/include/linux/platform_data/brcmfmac.h	2026-02-21 20:14:43.461463665 +0200
+@@ -95,6 +95,7 @@
+ 	unsigned int	oob_irq_nr;
+ 	unsigned long	oob_irq_flags;
+ 	bool		broken_sg_support;
++	bool		disable_sg_support;
+ 	unsigned short	sd_head_align;
+ 	unsigned short	sd_sgentry_align;
+ 	void		(*reset)(void);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c	2026-02-21 20:14:26.855419796 +0200
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c	2026-02-21 20:14:49.798480295 +0200
+@@ -130,6 +130,8 @@
+ 
+ 	sdio->broken_sg_support = of_property_read_bool(np,
+ 			"brcm,broken_sg_support");
++	sdio->disable_sg_support = of_property_read_bool(np,
++			"brcm,disable_sg_support");
+ 	if (of_property_read_u16(np, "brcm,sd_head_align", &val16) == 0)
+ 		sdio->sd_head_align = val16;
+ 	if (of_property_read_u16(np, "brcm,sd_sgentry_align", &val16) == 0)
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c	2026-02-21 20:14:26.861419812 +0200
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c	2026-02-21 20:14:56.420497608 +0200
+@@ -758,7 +758,8 @@
+ 
+ 	func = sdiodev->func2;
+ 	host = func->card->host;
+-	sdiodev->sg_support = host->max_segs > 1;
++	sdiodev->sg_support = (host->max_segs > 1) &&
++		!sdiodev->settings->bus.sdio.disable_sg_support;
+ 	max_blocks = min_t(uint, host->max_blk_count, 511u);
+ 	sdiodev->max_request_size = min_t(uint, host->max_req_size,
+ 					  max_blocks * func->cur_blksize);

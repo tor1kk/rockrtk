@@ -1,0 +1,4 @@
+bootpart=0:1
+bootdir=
+bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait ip=none 
+uenvcmd=fatload mmc 0:1 88000000 am335x-rockrtk.dtb;fatload mmc 0:1 82000000 zImage;bootz 82000000 - 88000000

@@ -1,0 +1,15 @@
+[connection]
+id=enu1-lte
+type=ethernet
+interface-name=enu1
+autoconnect=true
+
+[ethernet]
+
+[ipv4]
+method=auto
+never-default=true
+route-metric=1000
+
+[ipv6]
+method=disabled
