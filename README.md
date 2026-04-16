@@ -2,7 +2,7 @@
 
 A custom hardware platform based on **Texas Instruments AM3358** for **RTK (Real-Time Kinematic)** applications, providing high-precision positioning with integrated communication interfaces.
 
-![RockRTK PCB](hardware/images/pcb_altium_topview.png)
+![RockRTK](hardware/images/board_top.jpg)
 
 ## Repository Structure
 
@@ -16,17 +16,19 @@ rockrtk/
 
 [hardware/](hardware/) contains the full Altium Designer project:
 
-| | |
-|:---:|:---:|
-| ![Top](hardware/images/pcb_altium_topview.png) | ![Bottom](hardware/images/pcb_altium_bottomview.png) |
-| Top | Bottom |
-
 - **Processor**: TI AM3358 ARM Cortex-A8
 - **GNSS**: u-blox NEO-F9P (multi-band RTK)
 - **LTE**: SIMCom A7670E
 - **Wi-Fi / Bluetooth**: AP6256 (SDIO)
 - **Storage**: eMMC + microSD
 - **Networking**: Ethernet
+
+| | |
+|:---:|:---:|
+| ![Top](hardware/images/pcb_altium_topview.png) | ![Bottom](hardware/images/pcb_altium_bottomview.png) |
+| Top | Bottom |
+
+![Field test](hardware/images/field_test.jpg)
 
 See [hardware/README.md](hardware/README.md) for schematic PDF.
 
