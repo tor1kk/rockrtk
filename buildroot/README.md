@@ -9,7 +9,7 @@ Clone the `rockrtk` monorepo one level below Buildroot.
 In the Buildroot directory run:
 
 ```bash
-make BR2_EXTERNAL=../rockrtk/software rockrtk_defconfig
+make BR2_EXTERNAL=../rockrtk/buildroot rockrtk_defconfig
 ```
 
 ## License

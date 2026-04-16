@@ -22,5 +22,5 @@ SOFTWARE.
 
 ---
 
-Files under `software/board/rockrtk/patches/linux/` are licensed under GPL-2.0
+Files under `buildroot/board/rockrtk/patches/linux/` are licensed under GPL-2.0
 as derivative works of the Linux kernel.

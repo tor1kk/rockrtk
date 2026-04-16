@@ -7,7 +7,7 @@ A custom hardware platform based on **Texas Instruments AM3358** for **RTK (Real
 ```
 rockrtk/
 ├── hardware/   # Altium Designer project (schematics, PCB layout)
-└── software/   # Buildroot external tree (firmware, kernel, bootloader)
+└── buildroot/  # Buildroot external tree (firmware, kernel, bootloader)
 ```
 
 ## Hardware
@@ -25,13 +25,13 @@ See [hardware/README.md](hardware/README.md) for board preview and schematic PDF
 
 ## Software
 
-[software/](software/) is a Buildroot external tree. Clone this repository one level below Buildroot and run:
+[buildroot/](buildroot/) is a Buildroot external tree. Clone this repository one level below Buildroot and run:
 
 ```bash
-make BR2_EXTERNAL=../rockrtk/software rockrtk_defconfig
+make BR2_EXTERNAL=../rockrtk/buildroot rockrtk_defconfig
 ```
 
 ## License
 
-- `hardware/`, `software/` — [MIT](LICENSE)
-- `software/board/rockrtk/patches/linux/` — GPL-2.0 (derivative works of Linux kernel)
+- `hardware/`, `buildroot/` — [MIT](LICENSE)
+- `buildroot/board/rockrtk/patches/linux/` — GPL-2.0 (derivative works of Linux kernel)
